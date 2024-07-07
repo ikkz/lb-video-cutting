@@ -1,5 +1,13 @@
-import { bitable, checkers } from '@lark-base-open/js-sdk';
+import {
+  bitable,
+  checkers,
+  FieldType,
+  IAttachmentField,
+  ITable,
+} from '@lark-base-open/js-sdk';
 import { CellLoc } from './types';
+import i18n from './i18n';
+import { uniqueId } from 'lodash-es';
 
 const MS_PER_HOUR = 3600000;
 const MS_PER_MINUTE = 60000;
@@ -23,7 +31,7 @@ export function msToTime(milliseconds: number): string {
   const minutes = Math.floor(milliseconds / MS_PER_MINUTE);
   milliseconds %= MS_PER_MINUTE;
   const seconds = Math.floor(milliseconds / MS_PER_SECOND);
-  const ms = milliseconds % MS_PER_SECOND;
+  const ms = Math.floor(milliseconds % MS_PER_SECOND);
 
   const pad = (num: number, size: number) => num.toString().padStart(size, '0');
 
@@ -57,4 +65,32 @@ export async function getCellVideo(
   }
 
   return { video };
+}
+
+export async function createAttachmentField(tableId: string) {
+  const table = await bitable.base.getTableById(tableId);
+
+  return await table.addField({
+    type: FieldType.Attachment,
+    name: `${i18n.t('process_result')}_${uniqueId()}`,
+  });
+}
+
+export async function writeFiles(
+  list: { recordId: string; name: string; type: string; buffer: Uint8Array }[],
+  tableId: string,
+  fieldId?: string,
+) {
+  const table = await bitable.base.getTableById(tableId);
+  const field = await table.getFieldById<IAttachmentField>(
+    fieldId || (await createAttachmentField(tableId)),
+  );
+  await Promise.all(
+    list.map(async ({ recordId, name, type, buffer }) => {
+      const file = new File([buffer], name, {
+        type,
+      });
+      await field.setValue(recordId, file);
+    }),
+  );
 }

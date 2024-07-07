@@ -1,4 +1,3 @@
-import { bitable, checkers } from '@lark-base-open/js-sdk';
 import { clamp, uniqueId } from 'lodash-es';
 import {
   catchError,
@@ -32,14 +31,11 @@ export type Task = CellLoc & {
         type: 'end_duration';
         end: number;
         duration: number;
-      }
-    | {
-        type: 'split';
-        duration: number;
       };
 };
 
-type TaskStatus =
+export type TaskStatus =
+  | 'init'
   | 'pending'
   | 'downloading'
   | 'downloaded'
@@ -72,7 +68,8 @@ const createTasks = (
         tap(({ task, result }) =>
           updateStatus(payload.task, 'success', result),
         ),
-        catchError(() => {
+        catchError((err) => {
+          console.error(err);
           updateStatus(payload.task, 'failed', 'process_failed');
           return EMPTY;
         }),

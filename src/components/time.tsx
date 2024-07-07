@@ -6,11 +6,10 @@ import { useTranslation } from 'react-i18next';
 type TimeProps = {
   value: number;
   onChange: (value: number) => void;
-  min: number;
-  max: number;
+  disabled?: boolean;
 };
 
-export const Time: FC<TimeProps> = ({ value, onChange, min, max }) => {
+export const Time: FC<TimeProps> = ({ value, onChange, disabled }) => {
   const time = msToTime(value);
   const [hour, minute, second, ms] = time
     .split(/[:\.]/)
@@ -30,6 +29,7 @@ export const Time: FC<TimeProps> = ({ value, onChange, min, max }) => {
         size="mini"
         value={hour}
         onChange={(value) => onValueChange(0, value)}
+        disabled={disabled}
       />
       <span>:</span>
       <InputNumber
@@ -38,6 +38,7 @@ export const Time: FC<TimeProps> = ({ value, onChange, min, max }) => {
         value={minute}
         max={60}
         onChange={(value) => onValueChange(1, value)}
+        disabled={disabled}
       />
       <span>:</span>
       <InputNumber
@@ -46,6 +47,7 @@ export const Time: FC<TimeProps> = ({ value, onChange, min, max }) => {
         value={second}
         max={60}
         onChange={(value) => onValueChange(2, value)}
+        disabled={disabled}
       />
       <span>.</span>
       <InputNumber
@@ -54,6 +56,7 @@ export const Time: FC<TimeProps> = ({ value, onChange, min, max }) => {
         value={ms}
         max={999}
         onChange={(value) => onValueChange(3, value)}
+        disabled={disabled}
       />
     </div>
   );

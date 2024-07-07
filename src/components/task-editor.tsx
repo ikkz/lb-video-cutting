@@ -14,6 +14,7 @@ import { clamp } from 'lodash-es';
 type TaskEditorProps = CellLoc & {
   range: [number, number];
   setRange: (range: [number, number]) => void;
+  disabled?: boolean;
 };
 
 export const TaskEditor: FC<TaskEditorProps> = ({
@@ -22,6 +23,7 @@ export const TaskEditor: FC<TaskEditorProps> = ({
   recordId,
   range,
   setRange,
+  disabled,
 }) => {
   const { t } = useTranslation();
   const [duration, setDuration, getDuration] = useGetState(0);
@@ -65,6 +67,7 @@ export const TaskEditor: FC<TaskEditorProps> = ({
     const instance = new Player({
       id: playerId,
       url,
+      autoplay: false,
       width: '100%',
       height: '100%',
     });
@@ -100,18 +103,14 @@ export const TaskEditor: FC<TaskEditorProps> = ({
             <span className="whitespace-nowrap text-gray-500 text-xs">
               {t('start_time')}
             </span>
-            <Time
-              value={start}
-              onChange={setStart}
-              min={0}
-              max={duration - 1}
-            />
+            <Time value={start} onChange={setStart} disabled={disabled} />
             <Tooltip content={t('fill_current')}>
               <Button
                 icon={<IconClockCircle />}
                 size="mini"
                 type="primary"
                 className="flex-shrink-0"
+                disabled={disabled}
                 onClick={() =>
                   player.current && setStart(player.current.currentTime * 1000)
                 }
@@ -122,7 +121,7 @@ export const TaskEditor: FC<TaskEditorProps> = ({
             <span className="whitespace-nowrap text-gray-500 text-xs">
               {t('end_time')}
             </span>
-            <Time value={end} onChange={setEnd} min={0} max={duration} />
+            <Time value={end} onChange={setEnd} disabled={disabled} />
             <Tooltip content={t('fill_current')}>
               <Button
                 icon={<IconClockCircle />}
@@ -132,6 +131,7 @@ export const TaskEditor: FC<TaskEditorProps> = ({
                 onClick={() =>
                   player.current && setEnd(player.current.currentTime * 1000)
                 }
+                disabled={disabled}
               />
             </Tooltip>
           </div>

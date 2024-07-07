@@ -8,7 +8,7 @@ import { BatchView } from './views/batch';
 import { ffmpegAtom } from './state';
 
 const App = () => {
-  const [isBatch, setIsBatch] = useState(false);
+  const [isBatch, setIsBatch] = useState(true);
   const { t } = useTranslation();
   const { state } = useAtomValue(ffmpegAtom);
 

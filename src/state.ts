@@ -10,3 +10,6 @@ export const ffmpegAtom = loadable(atom(() => ffmpegReady));
 export const selectionAtom = atomWithObservable(() => userSelection$, {
   initialValue: null,
 });
+
+export type ResultField = 'override' | 'new';
+export const resultFieldAtom = atom('new' as ResultField);

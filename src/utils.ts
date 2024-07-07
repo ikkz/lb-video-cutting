@@ -36,6 +36,8 @@ export function msToTime(milliseconds: number): string {
   return `${pad(hours, 2)}:${pad(minutes, 2)}:${pad(seconds, 2)}.${pad(ms, 3)}`;
 }
 
+const SUPPORTED_EXT = ['mkv'];
+
 export async function getCellVideo(
   { tableId, recordId, fieldId }: CellLoc,
   download?: boolean,
@@ -45,7 +47,10 @@ export async function getCellVideo(
   if (
     !checkers.isAttachments(cell) ||
     cell.length !== 1 ||
-    !cell[0].type.startsWith('video/')
+    !(
+      cell[0].type.startsWith('video/') ||
+      SUPPORTED_EXT.includes(cell[0].name.split('.').pop() || '')
+    )
   ) {
     return null;
   }

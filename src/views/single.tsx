@@ -10,7 +10,8 @@ import { CellLoc } from '../types';
 import { useTranslation } from 'react-i18next';
 import { createTasks } from '../task';
 import { ResultField } from '../components/result-field';
-import { writeFiles } from '../utils';
+import { createAttachmentField, getCellVideo, writeFiles } from '../utils';
+import { reject } from 'lodash-es';
 
 const SingleView = () => {
   const resultField = useAtomValue(resultFieldAtom);
@@ -29,29 +30,28 @@ const SingleView = () => {
       return;
     }
     (async () => {
-      const table = await bitable.base.getTableById(tableId);
-      const cell = await table.getCellValue(fieldId, recordId);
-      if (
-        !checkers.isAttachments(cell) ||
-        cell.length !== 1 ||
-        !cell[0].type.startsWith('video/')
-      ) {
+      const cell = await getCellVideo({ tableId, recordId, fieldId }, false);
+      if (!cell) {
         Message.warning(i18n.t('invalid_cell'));
         return;
       }
-      setTarget({ fieldId, tableId, recordId, name: cell[0].name });
+      setTarget({ fieldId, tableId, recordId, name: cell.video.name });
     })();
   }, [selection]);
 
   const [range, setRange] = useState([0, 0] as [number, number]);
 
   const { run, loading } = useRequest(
-    () => {
+    async () => {
       const [start, end] = range;
       if (start >= end) {
         Message.error(i18n.t('invalid_range'));
         return Promise.resolve();
       }
+      const resultFieldId =
+        resultField === 'new'
+          ? await createAttachmentField(target!.tableId)
+          : undefined;
       return new Promise<void>((resolve) => {
         const id = 'single_prcess';
         const task$ = createTasks(
@@ -70,6 +70,8 @@ const SingleView = () => {
               case 'pending':
               case 'downloading':
               case 'downloaded':
+              case 'processed':
+              case 'writing':
               case 'processing': {
                 Message.loading({
                   id,
@@ -84,29 +86,20 @@ const SingleView = () => {
               }
               case 'failed': {
                 Message.error({ id, content: i18n.t(payload) });
+                reject(payload);
               }
             }
           },
+          resultFieldId,
         );
-        task$.subscribe(async ({ task, result, video }) => {
-          await writeFiles(
-            [
-              {
-                name: video.name,
-                type: video.type,
-                buffer: result,
-                recordId: task.recordId,
-              },
-            ],
-            task.tableId,
-            resultField === 'new' ? undefined : task.fieldId,
-          );
+        task$.subscribe(() => {
           resolve();
         });
       });
     },
     {
       manual: true,
+      ready: Boolean(target),
     },
   );
 

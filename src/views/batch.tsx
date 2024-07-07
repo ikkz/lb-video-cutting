@@ -26,6 +26,7 @@ import { produce } from 'immer';
 import { ResultField } from '../components/result-field';
 import { useAtomValue } from 'jotai';
 import { resultFieldAtom } from '../state';
+import { concatMap, from } from 'rxjs';
 
 const BatchView = () => {
   const resultField = useAtomValue(resultFieldAtom);
@@ -148,6 +149,10 @@ const BatchView = () => {
           };
           break;
       }
+      const resultFieldId =
+        resultField === 'new'
+          ? await createAttachmentField(table.id)
+          : undefined;
       const tasks$ = createTasks(
         tasks.map((task) => ({
           tableId: table.id,
@@ -167,28 +172,12 @@ const BatchView = () => {
             });
           });
         },
+        resultFieldId,
       );
-      const resultFieldId =
-        resultField === 'new'
-          ? await createAttachmentField(table.id)
-          : undefined;
       return new Promise<void>((resolve, reject) => {
         const total = tasks.length;
         let ok = 0;
-        tasks$.subscribe(async ({ result, task, video }) => {
-          await writeFiles(
-            [
-              {
-                name: video.name,
-                type: video.type,
-                buffer: result,
-                recordId: task.recordId,
-              },
-            ],
-            task.tableId,
-            resultFieldId || task.fieldId,
-          );
-
+        tasks$.pipe().subscribe(() => {
           ok++;
           if (ok === total) {
             resolve();
@@ -304,8 +293,13 @@ const BatchView = () => {
               />
             ),
             dataIndex: 'recordId',
-            render: (value) =>
-              hintField && <FieldRender recordId={value} fieldId={hintField} />,
+            render: (value) => (
+              <FieldRender
+                recordId={value}
+                fieldId={hintField}
+                tableId={table?.id}
+              />
+            ),
           },
 
           {

@@ -10,7 +10,7 @@ import {
   tap,
 } from 'rxjs';
 import { AsyncReturnType } from 'type-fest';
-import { getCellVideo, msToTime, timeToMs } from './utils';
+import { getCellVideo, msToTime, timeToMs, writeFiles } from './utils';
 import { operateVideo } from './ffmpeg';
 import i18n from './i18n';
 import { CellLoc } from './types';
@@ -40,12 +40,15 @@ export type TaskStatus =
   | 'downloading'
   | 'downloaded'
   | 'processing'
+  | 'processed'
+  | 'writing'
   | 'success'
   | 'failed';
 
 const createTasks = (
   tasks: Task[],
   updateStatus: (task: Task, status: TaskStatus, payload?: any) => void,
+  resultFieldId?: string,
 ) =>
   from(tasks).pipe(
     tap(console.log),
@@ -66,7 +69,7 @@ const createTasks = (
       updateStatus(payload.task, 'processing');
       return from(processVideo(payload)).pipe(
         tap(({ task, result }) =>
-          updateStatus(payload.task, 'success', result),
+          updateStatus(payload.task, 'processed', result),
         ),
         catchError((err) => {
           console.error(err);
@@ -75,7 +78,26 @@ const createTasks = (
         }),
       );
     }),
+    concatMap(({ result, task, video }) => {
+      updateStatus(task, 'writing');
+      return from(
+        writeFiles(
+          [
+            {
+              name: video.name,
+              type: video.type,
+              buffer: result,
+              recordId: task.recordId,
+            },
+          ],
+          task.tableId,
+          resultFieldId || task.fieldId,
+        ).then(() => task),
+      );
+    }),
+    tap((task) => updateStatus(task, 'success')),
   );
+
 const downloadFile = async (task: Task) => {
   const info = await getCellVideo(task, true);
   if (!info) {
@@ -156,7 +178,6 @@ const processVideo = async ({
           throw new Error('处理失败');
         }
         const result = (await ffmpeg.readFile(tmpFile)) as Uint8Array;
-
         return { task, result, video };
       } catch (error) {
         throw error;

@@ -20,6 +20,8 @@ const STATUS_MAP: Record<string, string> = {
   downloading: 'blue',
   downloaded: 'blue',
   processing: 'purple',
+  processed: 'purple',
+  writing: 'cyan',
   success: 'green',
   failed: 'red',
 };

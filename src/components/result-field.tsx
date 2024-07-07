@@ -11,8 +11,8 @@ export const ResultField: FC<{ disabled?: boolean }> = ({ disabled }) => {
 
   return (
     <Select value={resultField} onChange={setResultField} disabled={disabled}>
-      <Option value={'override'}>{t('result_override')}</Option>
       <Option value={'new'}>{t('result_new')}</Option>
+      <Option value={'override'}>{t('result_override')}</Option>
     </Select>
   );
 };

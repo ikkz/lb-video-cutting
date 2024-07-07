@@ -1,17 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { resultFieldAtom, selectionAtom } from '../state';
-import { bitable, checkers } from '@lark-base-open/js-sdk';
 import { useGetState, useRequest } from 'ahooks';
 import { Button, Divider, Input, Message } from '@arco-design/web-react';
-import i18n from '../i18n';
 import { TaskEditor } from '../components/task-editor';
 import { CellLoc } from '../types';
 import { useTranslation } from 'react-i18next';
 import { createTasks } from '../task';
 import { ResultField } from '../components/result-field';
-import { createAttachmentField, getCellVideo, writeFiles } from '../utils';
+import { createAttachmentField, getCellVideo } from '../utils';
 import { reject } from 'lodash-es';
+import i18n from '../i18n';
 
 const SingleView = () => {
   const resultField = useAtomValue(resultFieldAtom);

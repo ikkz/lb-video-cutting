@@ -2,13 +2,18 @@ import { FC, useEffect, useId, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Time } from './time';
 import { Button, Spin, Tooltip } from '@arco-design/web-react';
-import Player, { Events } from 'xgplayer';
+import Player, { Events, I18N } from 'xgplayer';
+import JP from 'xgplayer/es/lang/jp';
+
 import 'xgplayer/dist/index.min.css';
 import { IconClockCircle } from '@arco-design/web-react/icon';
 import { useGetState, useRequest } from 'ahooks';
 import { getCellVideo } from '../utils';
 import { CellLoc } from '../types';
 import { clamp } from 'lodash-es';
+import i18n from '../i18n';
+
+I18N.use(JP);
 
 type TaskEditorProps = CellLoc & {
   range: [number, number];
@@ -24,7 +29,7 @@ export const TaskEditor: FC<TaskEditorProps> = ({
   setRange,
   disabled,
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [duration, setDuration, getDuration] = useGetState(0);
   const [start, end] = range;
   const setStart = (value: number) =>
@@ -69,6 +74,7 @@ export const TaskEditor: FC<TaskEditorProps> = ({
       autoplay: false,
       width: '100%',
       height: '100%',
+      lang: i18n.language === 'ja' ? 'jp' : i18n.language,
     });
     instance.on(Events.DURATION_CHANGE, () => {
       if (instance.duration) {

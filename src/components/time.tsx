@@ -1,5 +1,5 @@
-import { Input, InputNumber } from '@arco-design/web-react';
-import { FC, useState } from 'react';
+import { InputNumber } from '@arco-design/web-react';
+import { FC } from 'react';
 import { msToTime, timeToMs } from '../utils';
 import { useTranslation } from 'react-i18next';
 

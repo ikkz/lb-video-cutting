@@ -3,11 +3,9 @@ import {
   checkers,
   FieldType,
   IAttachmentField,
-  ITable,
 } from '@lark-base-open/js-sdk';
 import { CellLoc } from './types';
 import i18n from './i18n';
-import { uniqueId } from 'lodash-es';
 
 const MS_PER_HOUR = 3600000;
 const MS_PER_MINUTE = 60000;
@@ -72,7 +70,7 @@ export async function createAttachmentField(tableId: string) {
 
   return await table.addField({
     type: FieldType.Attachment,
-    name: `${i18n.t('process_result')}_${uniqueId()}`,
+    name: `${i18n.t('process_result')}_${Math.random().toString(16).slice(2)}`,
   });
 }
 

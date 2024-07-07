@@ -1,12 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { resultFieldAtom, selectionAtom } from '../state';
-import {
-  bitable,
-  checkers,
-  FieldType,
-  IAttachmentField,
-} from '@lark-base-open/js-sdk';
+import { bitable, checkers } from '@lark-base-open/js-sdk';
 import { useGetState, useRequest } from 'ahooks';
 import { Button, Divider, Input, Message } from '@arco-design/web-react';
 import i18n from '../i18n';

@@ -152,6 +152,9 @@ const processVideo = async ({
         const code = await ffmpeg.exec(args);
         console.log(`get process code: ${code}`);
         console.log('process log', logs);
+        if (code !== 0) {
+          throw new Error('处理失败');
+        }
         const result = (await ffmpeg.readFile(tmpFile)) as Uint8Array;
 
         return { task, result, video };

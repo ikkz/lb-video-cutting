@@ -1,8 +1,7 @@
-import { FC, useEffect, useId, useRef, useState } from 'react';
-import { Task } from '../task';
+import { FC, useEffect, useId, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Time } from './time';
-import { Button, Message, Spin, Tooltip } from '@arco-design/web-react';
+import { Button, Spin, Tooltip } from '@arco-design/web-react';
 import Player, { Events } from 'xgplayer';
 import 'xgplayer/dist/index.min.css';
 import { IconClockCircle } from '@arco-design/web-react/icon';
